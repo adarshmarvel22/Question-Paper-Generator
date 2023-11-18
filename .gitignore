@@ -1,0 +1,13 @@
+# Node.js
+node_modules/
+
+# Generated files
+dist/
+coverage/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env

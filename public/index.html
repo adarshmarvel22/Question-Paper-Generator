@@ -1,0 +1,132 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Question Paper Generator</title>
+</head>
+<body>
+  <h1>Question Paper Generator</h1>
+
+  <h2>Submit a Question</h2>
+  <form id="questionForm">
+    <label for="question">Question:</label>
+    <input type="text" id="question" name="question" required>
+
+    <label for="subject">Subject:</label>
+    <input type="text" id="subject" name="subject" required>
+
+    <label for="topic">Topic:</label>
+    <input type="text" id="topic" name="topic" required>
+
+    <label for="difficulty">Difficulty:</label>
+    <select id="difficulty" name="difficulty" required>
+      <option value="Easy">Easy</option>
+      <option value="Medium">Medium</option>
+      <option value="Hard">Hard</option>
+    </select>
+
+    <label for="marks">Marks:</label>
+    <input type="number" id="marks" name="marks" required>
+
+    <button type="button" onclick="saveQuestion()">Save Question</button>
+  </form>
+
+  <hr>
+
+  <h2>Generate Question Paper</h2>
+<form>
+
+  <label for="total">Set total marks in Integer:</label>
+<input type="number" id="total" name="total">
+<!-- Difficulty Level Selection -->
+<label for="easyPercentage">Easy:(as a percentage out of 100)</label>
+<input type="number" id="easyPercentage" name="easyPercentage">
+
+<label for="mediumPercentage">Medium:(as a percentage out of 100)</label>
+<input type="number" id="mediumPercentage" name="mediumPercentage">
+
+<label for="hardPercentage">Hard:(as a percentage out of 100)</label>
+<input type="number" id="hardPercentage" name="hardPercentage">
+
+<button type="button" onclick="updateDifficulty()">Update Difficulty</button>
+</form>
+<br>
+<button type="button" onclick="generateQuestionPaper('json')">Generate Question Paper (JSON)</button>
+<hr>
+<div id="questionPaperContainer">
+  <!-- Display question paper content here -->
+</div>
+
+<script>  
+ async function updateDifficulty() {
+      const difficultyData = {
+        total: document.getElementById('total').value,
+        easyPercentage: parseFloat(document.getElementById('easyPercentage').value),
+        mediumPercentage: parseFloat(document.getElementById('mediumPercentage').value),
+        hardPercentage: parseFloat(document.getElementById('hardPercentage').value),
+      };
+  
+      const response = await fetch('http://localhost:3000/updateDifficulty', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(difficultyData), // Send data in the request body
+      });
+  
+      const result2 = await response.json();
+      alert(result2.message);
+    }
+
+  async function generateQuestionPaper(format) {
+
+    const response = await fetch(`http://localhost:3000/generateQuestionPaper?format=${format}`);
+
+      const result = await response.json();
+      displayQuestionPaper(result.questionPaper);
+
+  }
+
+  function displayQuestionPaper(questionPaper) {
+    const questionPaperContainer = document.getElementById('questionPaperContainer');
+    questionPaperContainer.innerHTML = '<h3>Generated Question Paper</h3>';
+
+    if (questionPaper.length === 0) {
+      questionPaperContainer.innerHTML += '<p>No questions available.</p>';
+      return;
+    }
+
+    // Display each question in a list format
+    questionPaper.forEach((question, index) => {
+      questionPaperContainer.innerHTML += `<p>${index + 1}. ${question.question} (${question.difficulty}, ${question.marks} marks)</p>`;
+    });
+  }
+
+    async function saveQuestion() {
+      const questionData = {
+        question: document.getElementById('question').value,
+        subject: document.getElementById('subject').value,
+        topic: document.getElementById('topic').value,
+        difficulty: document.getElementById('difficulty').value,
+        marks: parseInt(document.getElementById('marks').value),
+      };
+
+      const response = await fetch('http://localhost:3000/saveQuestion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(questionData),
+      });
+
+      const result = await response.json();
+      alert(result.message);
+    }
+  
+    // ... (rest of your JavaScript code)
+  </script>
+</body>
+</html>
